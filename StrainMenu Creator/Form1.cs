@@ -172,6 +172,7 @@ namespace StrainMenuCreator
 
         private void button3_Click(object sender, EventArgs e)
         {
+            //Default Settings
             Bar1_Box.Text = Bar1_Color;
             Bar2_Box.Text = Bar2_Color;
             Background_Box.Text = Background_Color;
@@ -185,10 +186,10 @@ namespace StrainMenuCreator
             Logo_Box.Checked = true;
 
             Range1.Text = "A1";
-            Range2.Text = "L33";
+            Range2.Text = "L30";
 
-            Image_Width.Value = 2955;
-            Image_Height.Value = 2164;
+            Image_Width.Value = 4893;
+            Image_Height.Value = 2706;
 
             Tax.Value = 20;
             FontSize.Value = 28;
