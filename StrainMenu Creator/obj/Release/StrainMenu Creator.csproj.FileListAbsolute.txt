@@ -1,0 +1,14 @@
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\bin\Release\StrainMenuCreator.exe.config
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\bin\Release\StrainMenuCreator.exe
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\bin\Release\StrainMenuCreator.pdb
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\bin\Release\INIFileParser.dll
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\bin\Release\INIFileParser.xml
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.ResolveComReference.cache
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenuCreator.Properties.Resources.resources
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.GenerateResource.cache
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.CoreCompileInputs.cache
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.CopyComplete
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenuCreator.exe
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenuCreator.pdb
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenu Creator.csprojAssemblyReference.cache
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenuCreator.Form1.resources

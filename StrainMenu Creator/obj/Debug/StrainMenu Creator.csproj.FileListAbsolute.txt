@@ -1,0 +1,14 @@
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\StrainMenu Creator.csprojAssemblyReference.cache
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\StrainMenu Creator.csproj.ResolveComReference.cache
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\StrainMenu Creator.csproj.GenerateResource.cache
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\StrainMenu Creator.csproj.CoreCompileInputs.cache
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\bin\Debug\INIFileParser.dll
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\bin\Debug\INIFileParser.xml
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\StrainMenu Creator.csproj.CopyComplete
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\bin\Debug\StrainMenuCreator.exe.config
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\bin\Debug\StrainMenuCreator.exe
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\bin\Debug\StrainMenuCreator.pdb
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\StrainMenuCreator.Properties.Resources.resources
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\StrainMenuCreator.exe
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\StrainMenuCreator.pdb
+C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\StrainMenuCreator.Form1.resources
