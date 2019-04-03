@@ -16,3 +16,5 @@ for actual use.
 
 Check that out over here https://github.com/Joexv/FX420_MenuCreator
 It's under "Exceless Editor", and the code for it is not pretty. Well.. None of this code is pretty. It gets thrown together so I dont actually have to do anything during my day and I look busy.
+
+Code this use a database instead of ini files? Probably. Do I want to migrate over? Nah fam.
