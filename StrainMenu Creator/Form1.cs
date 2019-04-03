@@ -1,34 +1,28 @@
-﻿using System;
+﻿using IniParser;
+using Microsoft.Office.Interop.Excel;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Windows.Forms;
 using System.Drawing;
-using IniParser;
-using Microsoft.Office.Interop.Excel;
-using AppForm = System.Windows.Forms.Application;
-using System.Drawing.Imaging;
-using Excel = Microsoft.Office.Interop.Excel;
-//using Windows.UI.Xaml.Media.Imaging;
-using System.Windows.Media.Imaging;
 using System.Drawing.Drawing2D;
-using Microsoft.VisualBasic;
-using ios = System.Runtime.InteropServices;
-using System.Text;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Windows.Forms;
+using AppForm = System.Windows.Forms.Application;
 using DataTable = System.Data.DataTable;
+
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace StrainMenuCreator
 {
     public partial class Form1 : Form
     {
         public string StartupPath = AppForm.StartupPath;
-        public string TemplateFile = Path.Combine(AppForm.StartupPath, "Template_36.xlsx");
+        public string TemplateFile = Path.Combine(AppForm.StartupPath, "Template_40.xlsx");
         public string PremadeList = Path.Combine(AppForm.StartupPath, "Premade.ini");
 
         public string Indica_Color;
@@ -48,11 +42,7 @@ namespace StrainMenuCreator
         private static void Extract(string nameSpace, string outDirectory, string internalFilePath, string resourceName)
         {
             var assembly = Assembly.GetCallingAssembly();
-
-            using (var s =
-                assembly.GetManifestResourceStream(nameSpace + "." +
-                                                   (internalFilePath == "" ? "" : internalFilePath + ".") +
-                                                   resourceName))
+            using (var s = assembly.GetManifestResourceStream(nameSpace + "." + (internalFilePath == "" ? "" : internalFilePath + ".") + resourceName))
             using (var r = new BinaryReader(s))
             using (var fs = new FileStream(outDirectory + "\\" + resourceName, FileMode.OpenOrCreate))
             using (var w = new BinaryWriter(fs))
@@ -69,36 +59,68 @@ namespace StrainMenuCreator
         private void Form1_Load(object sender, EventArgs e)
         {
             if (!File.Exists("INIFileParser.dll"))
-                ExtractFile("INIFileParser.dll");
-            if (!File.Exists("INIFileParser.xml"))
-                ExtractFile("INIFileParser.xml");
-            if (!File.Exists("Premade.ini"))
-                ExtractFile("Premade.ini");
-            if (!File.Exists("Template_36.xlsx"))
-                ExtractFile("Template_36.xlsx");
-            if (!File.Exists("Template_42.xlsx"))
-                ExtractFile("Template_42.xlsx");
-            DialogResult dialogResult = MessageBox.Show("There's a premade flower list, load that for a base?", "???", MessageBoxButtons.YesNo);
-            if (dialogResult == DialogResult.Yes)
             {
-                var yesterday = DateTime.Today.AddDays(-1);
-                Console.WriteLine(yesterday.ToString("MM-dd-yyyy"));
-                if (File.Exists("Premade" + DateAndTime.Today.ToString("MM-dd-yyyy") + ".ini"))
-                    dataGridView1.DataSource = DataTable("Premade" + DateAndTime.Today.ToString("MM-dd-yyyy") + ".ini");
-                //LoadPremade("Premade" + DateAndTime.Today.ToString("MM-dd-yyyy") + ".ini");
-                else if (File.Exists("Premade" + yesterday.ToString("MM-dd-yyyy") + ".ini"))
-                    dataGridView1.DataSource = DataTable("Premade" + yesterday.ToString("MM-dd-yyyy") + ".ini"); //LoadPremade("Premade" + yesterday.ToString("MM-dd-yyyy") + ".ini");
-                else
-                    dataGridView1.DataSource = DataTable("Premade.ini");
+                ExtractFile("INIFileParser.dll");
             }
 
+            if (!File.Exists("INIFileParser.xml"))
+            {
+                ExtractFile("INIFileParser.xml");
+            }
+
+            if (!File.Exists("Premade.ini"))
+            {
+                ExtractFile("Premade.ini");
+            }
+
+            if (!File.Exists("Template_36.xlsx"))
+            {
+                ExtractFile("Template_36.xlsx");
+            }
+
+            if (!File.Exists("Template_40.xlsx"))
+            {
+                ExtractFile("Template_40.xlsx");
+            }
+
+            /*
+             * Originally this was used to just use todays or yesterdays list, but I changed it so that they will backup the lists on said days,
+             * but it overwrites one universal one and will automatically use that.
+             * That way theres less chance of using a very old menu.
+             *
+            string PremadeString = "";
+            string yesterday = DateTime.Now.AddDays(-1).ToString("MM-dd-yyyy");
+            Console.WriteLine(yesterday);
+            Console.WriteLine(DateAndTime.Now.ToString("MM-dd-yyyy"));
+            if (File.Exists("Premade" + DateAndTime.Now.ToString("MM-dd-yyyy") + ".ini"))
+                PremadeString = "From Today.";
+            else if (File.Exists("Premade" + yesterday + ".ini"))
+                PremadeString = "From Yesterday.";
+            else
+                PremadeString = "No recent list, defaulting to an old one.";
+
+            DialogResult dialogResult = MessageBox.Show("There's a premade flower list, load that for a base? " + PremadeString, "??", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.Yes)
+            {
+                Console.WriteLine(yesterday);
+                if (File.Exists("Premade" + DateAndTime.Now.ToString("MM-dd-yyyy") + ".ini"))
+                    dataGridView1.DataSource = DataTable("Premade" + DateAndTime.Now.ToString("MM-dd-yyyy") + ".ini");
+                else if (File.Exists("Premade" + yesterday + ".ini"))
+                    dataGridView1.DataSource = DataTable("Premade" + yesterday + ".ini"); //LoadPremade("Premade" + yesterday.ToString("MM-dd-yyyy") + ".ini");
+                else
+                   dataGridView1.DataSource = DataTable("Premade.ini");
+            }
+            */
+            dataGridView1.DataSource = DataTable("Premade.ini");
+
             if (File.Exists(TemplateFile))
+            {
                 Template_Label.Text = "Template File Loaded!";
-            if (!File.Exists(PremadeList))
-                Premade_Butt.Enabled = false;
+            }
 
             this.FormClosed += form_FormClosed;
         }
+
         private void form_FormClosed(object sender, FormClosedEventArgs e)
         {
             foreach (var process in Process.GetProcessesByName("EXCEL"))
@@ -107,7 +129,6 @@ namespace StrainMenuCreator
                 process.WaitForExit();
             }
         }
-
 
         public void AdjustColors()
         {
@@ -127,7 +148,16 @@ namespace StrainMenuCreator
 
         public Color GetColor(string Hex)
         {
-            return ColorTranslator.FromHtml("#" + Hex);
+            Color color;
+            try
+            {
+                color = ColorTranslator.FromHtml("#" + Hex);
+            }
+            catch
+            {
+                color = Color.White;
+            }
+            return color;
         }
 
         private void Indica_Box_TextChanged(object sender, EventArgs e)
@@ -162,17 +192,13 @@ namespace StrainMenuCreator
 
         private void Background_Box_TextChanged(object sender, EventArgs e)
         {
+            Background_Box.Text = Background_Box.Text.ToUpper();
             AdjustColors();
-            if (Background_Box.Text.ToUpper() != "F0F0F0")
-            {
-                Logo_Box.Enabled = false;
-                Logo_Box.Checked = false;
-            }
         }
 
+        //Restore some basic default settings. I think these settings are old and outdated anyways.
         private void button3_Click(object sender, EventArgs e)
         {
-            //Default Settings
             Bar1_Box.Text = Bar1_Color;
             Bar2_Box.Text = Bar2_Color;
             Background_Box.Text = Background_Color;
@@ -191,23 +217,31 @@ namespace StrainMenuCreator
             Image_Width.Value = 4893;
             Image_Height.Value = 2706;
 
-            Tax.Value = 20;
+            Tax.Value = 0;
             FontSize.Value = 28;
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
+            Cursor.Current = Cursors.WaitCursor;
             button4.Text = "Processing...";
             CreateExcel();
             //EditExcel();
             EditExcel_Table();
             //CreateImage();
-            CreateImage_Alt();
+            CreateImage();
             ResizeImage("menu_Small.png");
-            MessageBox.Show("Menu has been created and should be located on your desktop!", "Done!");
             button4.Text = "Create Menu";
-            var Premade = "Premade" + DateTime.Today.ToString("MM-dd-yyyy-hh-mm") + "_AUTO_BACKUP_.ini";
+            var Premade = "Premade" + DateTime.Today.ToString("MM-dd-yyyy") + ".ini";
             GenPremade(Premade);
+            if (File.Exists("Premade.ini"))
+            {
+                File.Delete("Premade.ini");
+            }
+
+            File.Copy(Premade, "Premade.ini");
+            MessageBox.Show("Menu has been created and should be located on your desktop!", "Done!");
+            Cursor.Current = Cursors.Default;
         }
 
         public void EditExcel_Table()
@@ -229,97 +263,147 @@ namespace StrainMenuCreator
                 Range row = sheet.Rows.Cells[2, 1];
 
                 #region Create lists from DataGridView
+
                 List<string> Values = new List<string>();
 
                 DataTable sam = (DataTable)dataGridView1.DataSource;
                 DataView dt1 = new DataView(sam);
+                //dt1.Sort = "Numbers ASC";
                 dt1.Sort = "Cost ASC";
 
-                DataTable dt = dt1.ToTable();            
+                DataTable dt = dt1.ToTable();
                 foreach (DataRow DataRow in dt.Rows)
+                {
                     Values.Add(DataRow[0].ToString());
+                }
+
                 string[] Names = Values.ToArray();
                 Values.Clear();
 
                 foreach (DataRow DataRow in dt.Rows)
+                {
                     Values.Add(DataRow[1].ToString());
+                }
+
                 string[] Types = Values.ToArray();
                 Values.Clear();
 
                 foreach (DataRow DataRow in dt.Rows)
+                {
                     Values.Add(DataRow[2].ToString());
+                }
+
                 string[] Costs = Values.ToArray();
                 Values.Clear();
 
                 foreach (DataRow DataRow in dt.Rows)
+                {
                     Values.Add(DataRow[3].ToString());
+                }
+
                 string[] THCs = Values.ToArray();
                 Values.Clear();
 
                 foreach (DataRow DataRow in dt.Rows)
+                {
                     Values.Add(DataRow[4].ToString());
+                }
+
                 string[] CBDs = Values.ToArray();
                 Values.Clear();
-                #endregion
+                /*
+                foreach (DataRow DataRow in dt.Rows)
+                    Values.Add(DataRow[5].ToString());
+                string[] Numbers = Values.ToArray();
+                Values.Clear();
+                */
 
+                #endregion Create lists from DataGridView
+
+                Console.WriteLine(GetNum(Range2.Text) + Range2.Text.Substring(1));
+                Range rng = sheet.UsedRange;
+                rng.Interior.Color = System.Drawing.ColorTranslator.ToOle(GetColor(Background_Box.Text));
                 int i = 0;
+                bool ContinueAnyways = false;
                 foreach (var name in Names)
                 {
                     if (name != "" && name != "/n" && name != "/r")
                     {
-                        if (Num >= ((TemplateMax / 2) + 3) && Letter != 8)
+                        if (Num >= ((TemplateMax / 2) + 4) && Letter != 8)
                         {
                             Letter = 8;
                             Num = 4;
                         }
-                        if (Num >= (TemplateMax + 4))
+                        if (Num >= (TemplateMax + 4) || ContinueAnyways)
                         {
                             DialogResult dialogResult = MessageBox.Show("You have more flowers than what this template supports continue?", "???", MessageBoxButtons.YesNo);
                             if (dialogResult == DialogResult.No)
                             {
                                 break;
                             }
+
+                            ContinueAnyways = true;
                         }
 
                         Console.WriteLine(Letter);
                         Console.WriteLine(GetLetter(Letter));
                         Console.WriteLine(GetLetter(Letter) + Num);
+                        string Color = DetermineColor(Types[i]);
 
                         //Flower Name
                         row = sheet.Rows.Cells[Num, Letter];
-                        row.Value = name;
+                        row.Value = (i + 1) + ": " + name;
+                        //row.Value = name;
                         row.VerticalAlignment = XlVAlign.xlVAlignCenter;
                         row.HorizontalAlignment = XlHAlign.xlHAlignLeft;
                         row.Font.Size = FontSize.Value;
                         row.Font.Bold = true;
-                        row.Font.Color = GetColor(DetermineColor(Types[i]));
+                        row.Font.Color = GetColor(Color);
+                        if (i % 2 == 0)
+                        {
+                            row.Interior.Color = System.Drawing.ColorTranslator.ToOle(GetColor(Bar1_Box.Text));
+                        }
+                        else
+                        {
+                            row.Interior.Color = System.Drawing.ColorTranslator.ToOle(GetColor(Bar2_Box.Text));
+                        }
 
                         //Flower Cost
                         row = sheet.Rows.Cells[Num, Letter + 1];
 
                         #region Tax Calculation
+
                         decimal Cost_ = 0;
                         //MessageBox.Show(Costs[i]);
                         if (Costs[i].Substring(0, 1) == "0")
                         {
-                            //MessageBox.Show(Costs[i].Substring(1));
                             Cost_ = Int32.Parse(Costs[i].Substring(1));
-                            //MessageBox.Show(Cost_.ToString());
                         }
                         else
+                        {
                             Cost_ = Int32.Parse(Costs[i]);
+                        }
+
                         decimal percent = (Tax.Value / 100);
                         decimal test = Cost_ * percent;
                         Cost_ = Cost_ + test;
-                        //MessageBox.Show(test.ToString() + percent.ToString() + Decimal.ToInt32(test).ToString());
-                        #endregion
+
+                        #endregion Tax Calculation
 
                         row.Value = Cost_;
                         row.VerticalAlignment = XlVAlign.xlVAlignCenter;
                         row.HorizontalAlignment = XlHAlign.xlHAlignCenter;
                         row.Font.Size = FontSize.Value;
                         row.Font.Bold = true;
-                        row.Font.Color = GetColor(DetermineColor(Types[i]));
+                        row.Font.Color = GetColor(Color);
+                        if (i % 2 == 0)
+                        {
+                            row.Interior.Color = System.Drawing.ColorTranslator.ToOle(GetColor(Bar1_Box.Text));
+                        }
+                        else
+                        {
+                            row.Interior.Color = System.Drawing.ColorTranslator.ToOle(GetColor(Bar2_Box.Text));
+                        }
 
                         //Flower THC%
                         row = sheet.Rows.Cells[Num, Letter + 2];
@@ -328,7 +412,15 @@ namespace StrainMenuCreator
                         row.HorizontalAlignment = XlHAlign.xlHAlignCenter;
                         row.Font.Size = FontSize.Value;
                         row.Font.Bold = true;
-                        row.Font.Color = GetColor(DetermineColor(Types[i]));
+                        row.Font.Color = GetColor(Color);
+                        if (i % 2 == 0)
+                        {
+                            row.Interior.Color = System.Drawing.ColorTranslator.ToOle(GetColor(Bar1_Box.Text));
+                        }
+                        else
+                        {
+                            row.Interior.Color = System.Drawing.ColorTranslator.ToOle(GetColor(Bar2_Box.Text));
+                        }
 
                         //Flower CBD%
                         row = sheet.Rows.Cells[Num, Letter + 3];
@@ -337,8 +429,15 @@ namespace StrainMenuCreator
                         row.HorizontalAlignment = XlHAlign.xlHAlignCenter;
                         row.Font.Size = FontSize.Value;
                         row.Font.Bold = true;
-                        row.Font.Color = GetColor(DetermineColor(Types[i]));
-
+                        row.Font.Color = GetColor(Color);
+                        if (i % 2 == 0)
+                        {
+                            row.Interior.Color = System.Drawing.ColorTranslator.ToOle(GetColor(Bar1_Box.Text));
+                        }
+                        else
+                        {
+                            row.Interior.Color = System.Drawing.ColorTranslator.ToOle(GetColor(Bar2_Box.Text));
+                        }
 
                         //Range r = sheet.Range[Merge(Letter, Num) + ":" + Merge(Letter, Num + 3)];
                         //r.Font.Size = 26;
@@ -354,39 +453,65 @@ namespace StrainMenuCreator
                 excel.Quit();
                 Console.WriteLine("Done");
             }
-            catch(Exception e) { MessageBox.Show(e.ToString()); }
+            catch (Exception e) { MessageBox.Show(e.ToString()); }
         }
 
         public string DetermineColor(string Type)
         {
             Type = Type.ToUpper();
             Console.WriteLine(Type);
-            //MessageBox.Show(Type);
-            if(Type.Contains("INDICA"))
+            if (Type.Contains("INDICA"))
+            {
                 return Indica_Box.Text;
+            }
+
             if (Type.Contains("SATIVA"))
+            {
                 return Sativa_Box.Text;
+            }
+
             if (Type.Contains("CBD"))
+            {
                 return Heavy_Box.Text;
+            }
+
             if (Type.Contains("HYBRID"))
+            {
                 return Hybrid_Box.Text;
+            }
             else
             {
-                MessageBox.Show("No Color found for strain: " + Type);
-                return Hybrid_Box.Text;
+                try
+                {
+                    var parser = new FileIniDataParser();
+                    var data = parser.ReadFile(AppForm.StartupPath + @"\Settings.ini");
+                    return data["StrainColors"][Type];
+                }
+                catch
+                {
+                    MessageBox.Show("No Color found for strain: " + Type);
+                    return Hybrid_Box.Text;
+                }
             }
         }
 
-        const int ColumnBase = 26;
-        const int DigitMax = 7; // ceil(log26(Int32.Max))
-        const string Digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        #region Weird Excel Letter to Number functions that really arent needed but im lazy
+
+        private const int ColumnBase = 26;
+        private const int DigitMax = 7; // ceil(log26(Int32.Max))
+        private const string Digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
         public static string GetLetter(int index)
         {
             if (index <= 0)
+            {
                 throw new IndexOutOfRangeException("index must be a positive number");
+            }
 
             if (index <= ColumnBase)
+            {
                 return Digits[index - 1].ToString();
+            }
 
             var sb = new StringBuilder().Append(' ', DigitMax);
             var current = index;
@@ -404,18 +529,6 @@ namespace StrainMenuCreator
             return (GetLetter(Num_Letter) + Num.ToString());
         }
 
-
-        private void AllBorders(Borders _borders)
-        {
-            _borders[XlBordersIndex.xlEdgeLeft].LineStyle = XlLineStyle.xlContinuous;
-            _borders[XlBordersIndex.xlEdgeRight].LineStyle = XlLineStyle.xlContinuous;
-            _borders[XlBordersIndex.xlEdgeTop].LineStyle = XlLineStyle.xlContinuous;
-            _borders[XlBordersIndex.xlEdgeBottom].LineStyle = XlLineStyle.xlContinuous;
-            _borders.Color = Color.Black;
-        }
-
-        //xlWorkSheet.Columns[5].ColumnWidth = 18
-
         private static Bitmap ResetResolution(Metafile mf, float resolution)
         {
             int width = (int)(mf.Width * resolution / mf.HorizontalResolution);
@@ -428,6 +541,8 @@ namespace StrainMenuCreator
             return bmp;
         }
 
+        #endregion Weird Excel Letter to Number functions that really arent needed but im lazy
+
         private void CreateExcel()
         {
             try
@@ -438,95 +553,18 @@ namespace StrainMenuCreator
                     process.WaitForExit();
                 }
                 if (File.Exists("Generated.xlsx"))
+                {
                     File.Delete("Generated.xlsx");
+                }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 MessageBox.Show(e.ToString());
             }
             File.Copy(TemplateFile, "Generated.xlsx");
         }
 
-        private void CreateImage()
-        {
-            if (File.Exists(@"C:\Users\Public\Public/ Desktop\Menu.png"))
-                File.Delete(@"C:\Users\Public\Public/ Desktop\Menu.png");
-            Excel.Application excel = new Excel.Application();
-            Excel.Workbook wkb = excel.Workbooks.Open(Path.Combine(StartupPath, "Generated.xlsx"));
-            Excel.Worksheet sheet = wkb.Worksheets[1] as Excel.Worksheet;
-            Excel.Range range = sheet.Cells[33, 12] as Excel.Range;
-            range.Formula = "";
-
-            // copy as seen when printed
-            //range.CopyPicture(Excel.XlPictureAppearance.xlPrinter, Excel.XlCopyPictureFormat.xlPicture);
-
-            // uncomment to copy as seen on screen
-            range.CopyPicture(Excel.XlPictureAppearance.xlScreen, Excel.XlCopyPictureFormat.xlBitmap);
-
-            Console.WriteLine("Please enter a full file name to save the image from the Clipboard:");
-            Console.WriteLine("Menu_Small.jpeg");
-            string fileName = "Menu_Small.jpeg";
-            using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
-            {
-                if (Clipboard.ContainsData(DataFormats.EnhancedMetafile))
-                {
-                    Metafile metafile = Clipboard.GetData(DataFormats.EnhancedMetafile) as Metafile;
-                    metafile.Save(fileName);
-                }
-                else if (Clipboard.ContainsData(DataFormats.Bitmap))
-                {
-                    BitmapSource bitmapSource = Clipboard.GetData(DataFormats.Bitmap) as BitmapSource;
-
-                    JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
-                    encoder.QualityLevel = 100;
-                    encoder.Save(fileStream);
-                }
-            }
-            object objFalse = false;
-            wkb.Close(objFalse, Type.Missing, Type.Missing);
-            excel.Quit();
-        }
-
-        public void ExportRangeAsJpg()
-        {
-            Excel.Application xl;
-
-            xl = (Excel.Application)ios.Marshal.GetActiveObject("Excel.Application");
-
-            if (xl == null)
-            {
-                MessageBox.Show("No Excel !!");
-                return;
-            }
-
-            Excel.Workbook wb = xl.ActiveWorkbook;
-            Excel.Range r = wb.ActiveSheet.Range["A1:L33"];
-            r.CopyPicture(Excel.XlPictureAppearance.xlScreen,
-                           Excel.XlCopyPictureFormat.xlBitmap);
-
-            if (Clipboard.GetDataObject() != null)
-            {
-                IDataObject data = Clipboard.GetDataObject();
-
-                if (data.GetDataPresent(DataFormats.Bitmap))
-                {
-                    Image image = (Image)data.GetData(DataFormats.Bitmap, true);
-                    image.Save("sample.jpg",
-                        System.Drawing.Imaging.ImageFormat.Jpeg);
-                }
-                else
-                {
-                    MessageBox.Show("No image in Clipboard !!");
-                }
-            }
-            else
-            {
-                MessageBox.Show("Clipboard Empty !!");
-            }
-        }
-
-        public void CreateImage_Alt()
+        public void CreateImage()
         {
             Console.WriteLine("Creating initial image...");
             Excel.Application excel = new Excel.Application();
@@ -567,6 +605,7 @@ namespace StrainMenuCreator
             GenPremade(Premade);
         }
 
+        //Generates ini file that the program uses for keeping track and editing the Strains
         public void GenPremade(string Premade)
         {
             Console.WriteLine("Generating Premade...");
@@ -576,42 +615,58 @@ namespace StrainMenuCreator
             var data = parser.ReadFile(Premade);
 
             #region Create lists from DataGridView
+
             List<string> Values = new List<string>();
             DataTable dt = (DataTable)dataGridView1.DataSource;
             foreach (DataRow DataRow in dt.Rows)
+            {
                 Values.Add(DataRow[0].ToString());
+            }
+
             string[] Names = Values.ToArray();
             Values.Clear();
 
             foreach (DataRow DataRow in dt.Rows)
+            {
                 Values.Add(DataRow[1].ToString());
+            }
+
             string[] Types = Values.ToArray();
             Values.Clear();
 
             foreach (DataRow DataRow in dt.Rows)
+            {
                 Values.Add(DataRow[2].ToString());
+            }
+
             string[] Costs = Values.ToArray();
             Values.Clear();
 
             foreach (DataRow DataRow in dt.Rows)
+            {
                 Values.Add(DataRow[3].ToString());
+            }
+
             string[] THCs = Values.ToArray();
             Values.Clear();
 
             foreach (DataRow DataRow in dt.Rows)
+            {
                 Values.Add(DataRow[4].ToString());
+            }
+
             string[] CBDs = Values.ToArray();
             Values.Clear();
-            #endregion
+            /*
+            foreach (DataRow DataRow in dt.Rows)
+                Values.Add(DataRow[5].ToString());
+            string[] Numbers = Values.ToArray();
+            Values.Clear();
+            */
+
+            #endregion Create lists from DataGridView
 
             int i = 1;
-            /*
-            string[] Names = Name_Box.Text.Split('\n');
-            string[] Costs = Cost_Box.Text.Split('\n');
-            string[] Types = Type_Box.Text.Split('\n');
-            string[] THCs = THC_Box.Text.Split('\n');
-            string[] CBDs = CBD_Box.Text.Split('\n');*/
-
             int Total = Names.Length;
             foreach (var name in Names)
             {
@@ -622,6 +677,7 @@ namespace StrainMenuCreator
                     data["Types"][i.ToString()] = Types[i - 1];
                     data["THC"][i.ToString()] = THCs[i - 1];
                     data["CBD"][i.ToString()] = CBDs[i - 1];
+                    //data["Numbers"][i.ToString()] = Numbers[i - 1];
                     i++;
                 }
                 else
@@ -662,8 +718,10 @@ namespace StrainMenuCreator
                 OpenPremade = Path.GetFileNameWithoutExtension(filePath) + ".ini";
                 dataGridView1.DataSource = DataTable(OpenPremade);
             }
+            this.BringToFront();
         }
 
+        //Fills DataGrid from ini files and will also update settings as needed.
         public DataTable DataTable(string filePath)
         {
             DataTable dt = new DataTable();
@@ -672,33 +730,37 @@ namespace StrainMenuCreator
             dt.Columns.Add("Cost");
             dt.Columns.Add("THC");
             dt.Columns.Add("CBD");
+            //dt.Columns.Add("Numbers");
             Console.WriteLine("Attempting to read Premade");
             var parser = new FileIniDataParser();
             var data = parser.ReadFile(filePath);
             try
             {
-
-                Console.WriteLine("Premade loaded... Reading Settings>Total");
                 int Total = Int32.Parse(data["Settings"]["Total"]);
-                Console.WriteLine("Total = " + Total.ToString());
                 for (int i = 0; i < Total; i++)
                 {
                     DataRow dr = dt.NewRow();
-                    Console.WriteLine("Reading " + i + "/" + (i + 1));
+                    //dr["Numbers"] = data["Numbers"][(i + 1).ToString()];
                     dr["Flowers"] = data["Flower"][(i + 1).ToString()];
                     dr["Types"] = data["Types"][(i + 1).ToString()];
 
-                    if(int.Parse(data["Cost"][(i + 1).ToString()]) < 10)
+                    //Big Yikes. Supossed to help filter out unwated zeroes preceeding the Costs
+                    if (int.Parse(data["Cost"][(i + 1).ToString()]) < 10 &&
+                        data["Cost"][(i + 1).ToString()].Substring(0, 1) != "0" &&
+                        !data["Cost"][(i + 1).ToString()].ToString().Contains("00"))
+                    {
                         dr["Cost"] = "0" + data["Cost"][(i + 1).ToString()];
+                    }
                     else
+                    {
                         dr["Cost"] = data["Cost"][(i + 1).ToString()];
+                    }
 
                     dr["THC"] = data["THC"][(i + 1).ToString()];
                     dr["CBD"] = data["CBD"][(i + 1).ToString()];
-                    
+
                     dt.Rows.Add(dr);
                 }
-
             }
             catch (Exception e)
             {
@@ -712,13 +774,10 @@ namespace StrainMenuCreator
                 Sativa_Box.Text = data["Settings"]["Sativa"];
                 Hybrid_Box.Text = data["Settings"]["Hybrid"];
                 Heavy_Box.Text = data["Settings"]["CBD"];
-
                 Range1.Text = data["Settings"]["Range1"];
                 Range2.Text = data["Settings"]["Range2"];
-
                 Image_Width.Value = decimal.Parse(data["Settings"]["Width"]);
                 Image_Height.Value = decimal.Parse(data["Settings"]["Height"]);
-
                 Tax.Value = decimal.Parse(data["Settings"]["Tax"]);
                 FontSize.Value = decimal.Parse(data["Settings"]["Font"]);
             }
@@ -742,44 +801,73 @@ namespace StrainMenuCreator
             List<string> Values = new List<string>();
             DataTable dt = (DataTable)dataGridView1.DataSource;
             foreach (DataRow DataRow in dt.Rows)
+            {
                 Values.Add(DataRow[0].ToString());
+            }
+
             string[] Names = Values.ToArray();
 
             Delete_Box.DataSource = Names.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
+            this.BringToFront();
         }
 
+        //Delete row from DataGrid based on the comboBox above the button
         private void button5_Click(object sender, EventArgs e)
         {
             try
             {
                 #region Create lists from DataGridView
+
                 List<string> Values = new List<string>();
                 DataTable dt = (DataTable)dataGridView1.DataSource;
                 foreach (DataRow DataRow in dt.Rows)
+                {
                     Values.Add(DataRow[0].ToString());
+                }
+
                 string[] Names = Values.ToArray();
                 Values.Clear();
 
                 foreach (DataRow DataRow in dt.Rows)
+                {
                     Values.Add(DataRow[1].ToString());
+                }
+
                 string[] Types = Values.ToArray();
                 Values.Clear();
 
                 foreach (DataRow DataRow in dt.Rows)
+                {
                     Values.Add(DataRow[2].ToString());
+                }
+
                 string[] Costs = Values.ToArray();
                 Values.Clear();
 
                 foreach (DataRow DataRow in dt.Rows)
+                {
                     Values.Add(DataRow[3].ToString());
+                }
+
                 string[] THCs = Values.ToArray();
                 Values.Clear();
 
                 foreach (DataRow DataRow in dt.Rows)
+                {
                     Values.Add(DataRow[4].ToString());
+                }
+
                 string[] CBDs = Values.ToArray();
                 Values.Clear();
-                #endregion
+
+                /*
+                foreach (DataRow DataRow in dt.Rows)
+                    Values.Add(DataRow[5].ToString());
+                string[] Numbers = Values.ToArray();
+                Values.Clear();
+                */
+
+                #endregion Create lists from DataGridView
 
                 int i = Array.IndexOf(Names, Delete_Box.Text);
 
@@ -803,20 +891,40 @@ namespace StrainMenuCreator
                 list.RemoveAt(i);
                 CBDs = list.ToArray();
 
-                //Name_Box.Text = String.Join("\n", Names);
-                //Cost_Box.Text = String.Join("\n", Costs);
-                //Type_Box.Text = String.Join("\n", Types);
-                //THC_Box.Text = String.Join("\n", THCs);
-                //CBD_Box.Text = String.Join("\n", CBDs);
+                /*
+                list = new List<string>(Numbers);
+                list.RemoveAt(i);
+                Numbers = list.ToArray();
+                */
 
                 dt.Rows.RemoveAt(i);
                 dataGridView1.DataSource = dt;
                 Delete_Box.DataSource = Names.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error removing the selected strain!" + System.Environment.NewLine + ex.ToString());
+            }
+            UpdateCount();
         }
 
-        public int TemplateMax = 36;
+        public void UpdateCount()
+        {
+            List<string> Values = new List<string>();
+            DataTable dt = (DataTable)dataGridView1.DataSource;
+            foreach (DataRow DataRow in dt.Rows)
+            {
+                Values.Add(DataRow[0].ToString());
+            }
+
+            string[] Names = Values.ToArray();
+            FlowerCount.Text = "Flower Count: " + Names.Count();
+            Values.Clear();
+
+            Delete_Box.DataSource = Names.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
+        }
+
+        public int TemplateMax = 40;
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -833,8 +941,9 @@ namespace StrainMenuCreator
                 ofd.Dispose();
 
                 TemplateFile = Path.GetFileNameWithoutExtension(filePath);
+                string s = TemplateFile.Substring(TemplateFile.LastIndexOf("Template_"));
                 Template_Label.Text = "Loaded, " + TemplateFile;
-                TemplateMax = Int32.Parse(TemplateFile.Replace("Template_", ""));
+                TemplateMax = Int32.Parse(s.Replace("Template_", ""));
                 TemplateFile = filePath;
             }
         }
@@ -846,24 +955,16 @@ namespace StrainMenuCreator
 
         private void Delete_Box_SelectedIndexChanged(object sender, EventArgs e)
         {
-
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-
         }
 
         private void dataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            List<string> Values = new List<string>();
-            DataTable dt = (DataTable)dataGridView1.DataSource;
-            foreach (DataRow DataRow in dt.Rows)
-                Values.Add(DataRow[0].ToString());
-            string[] Names = Values.ToArray();
-            Values.Clear();
-
-            Delete_Box.DataSource = Names.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
+            UpdateCount();
+            CountCheck();
         }
 
         public void CountCheck()
@@ -871,7 +972,10 @@ namespace StrainMenuCreator
             List<string> Values = new List<string>();
             DataTable dt = (DataTable)dataGridView1.DataSource;
             foreach (DataRow DataRow in dt.Rows)
+            {
                 Values.Add(DataRow[0].ToString());
+            }
+
             string[] Names = Values.ToArray();
 
             FlowerCount.Text = "Flower Count: " + Names.Count();
@@ -882,7 +986,9 @@ namespace StrainMenuCreator
                 {
                     OpenTemplate();
                     if (TemplateMax < Names.Count())
-                     CountCheck();
+                    {
+                        CountCheck();
+                    }
                 }
             }
         }
@@ -893,11 +999,15 @@ namespace StrainMenuCreator
             List<string> Values = new List<string>();
             DataTable dt = (DataTable)dataGridView1.DataSource;
             foreach (DataRow DataRow in dt.Rows)
+            {
                 Values.Add(DataRow[0].ToString());
+            }
+
             string[] Names = Values.ToArray();
             Values.Clear();
 
             Delete_Box.DataSource = Names.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
+            this.BringToFront();
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -907,21 +1017,23 @@ namespace StrainMenuCreator
 
         private void button7_Click(object sender, EventArgs e)
         {
-            //this.dataGridView1.DataSource.Rows.Add("Flowers", "Types", "Cost", "THC", "CBD");
-            //this.dataGridView1.Rows.Insert(0, "", "" , "", "", "");
             DataTable dt = (DataTable)dataGridView1.DataSource;
             dt.NewRow();
             dataGridView1.DataSource = dt;
 
             List<string> Values = new List<string>();
             foreach (DataRow DataRow in dt.Rows)
+            {
                 Values.Add(DataRow[0].ToString());
+            }
+
             string[] Names = Values.ToArray();
             Values.Clear();
 
             Delete_Box.DataSource = Names.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
         }
 
+        //Values used for the resize class
         public Decimal Final_Width
         {
             get { return Image_Width.Value; }
@@ -932,6 +1044,131 @@ namespace StrainMenuCreator
         {
             get { return Image_Height.Value; }
             set { Image_Height.Value = value; }
+        }
+
+        public bool Export_1080p;
+
+        //Takes the 'Names' column and turns it into a list and prints it as an excel file.
+        private List<string> parts = new List<string>();
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                foreach (var process in Process.GetProcessesByName("EXCEL"))
+                {
+                    process.Kill();
+                    process.WaitForExit();
+                }
+                Console.WriteLine("Turning menu into nice and easy list");
+                DataTable sam = (DataTable)dataGridView1.DataSource;
+                DataView dt1 = new DataView(sam);
+                DataTable dt = dt1.ToTable();
+                foreach (DataRow DataRow in dt.Rows)
+                {
+                    parts.Add(DataRow[0].ToString() ?? "");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            PrintableExcel();
+        }
+
+        private void SendToPrinter(string File)
+        {
+            try
+            {
+                var info = new ProcessStartInfo();
+                info.Verb = "print";
+                info.FileName = File;
+                info.CreateNoWindow = true;
+                info.WindowStyle = ProcessWindowStyle.Hidden;
+
+                var p = new Process();
+                p.StartInfo = info;
+                p.Start();
+
+                p.WaitForInputIdle();
+            }
+            catch { }
+        }
+
+        private void PrintableExcel()
+        {
+            Console.WriteLine("Menu scanned creating printable document");
+            if (File.Exists("PrintMenu.xlsx"))
+            {
+                File.Delete("PrintMenu.xlsx");
+            }
+
+            File.Copy("Blank.xlsx", "PrintMenu.xlsx");
+            string excelFile = AppForm.StartupPath + "\\PrintMenu.xlsx";
+            Excel.Application excel = new Excel.Application();
+            Workbook w = excel.Workbooks.Open(excelFile);
+            Worksheet ws = w.Sheets[1];
+            ws.Protect(Contents: false);
+            int i = 0;
+            int k = 1;
+            foreach (var value in parts)
+            {
+                i++;
+                if (i >= 45)
+                {
+                    i = 1;
+                    k++;
+                }
+                ws.Cells[i, k].Value = value;
+                ws.Cells[i, k].Font.Size = 9;
+                ws.Cells[i, k].Font.Bold = true;
+            }
+            w.Close(true, Type.Missing, Type.Missing);
+            excel.Quit();
+            Console.WriteLine("Printing to default printer");
+            SendToPrinter(excelFile);
+        }
+
+        private bool IsDigitsOnly(object str)
+        {
+            if (str != null)
+            {
+                foreach (char c in str.ToString())
+                {
+                    if (c < '0' || c > '9')
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public int GetNum(string Range)
+        {
+            char c = char.Parse(Range.Substring(0, 1).ToLower());
+            return char.ToUpper(c) - 63;
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (File.Exists("MenuCreator.exe"))
+            {
+                Process.Start("MenuCreator.exe");
+            }
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            Process.Start(TemplateFile);
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            Ounces.OunceForm frm = new Ounces.OunceForm();
+            frm.TemplateFile = TemplateFile;
+            frm.ShowDialog();
         }
     }
 
@@ -970,13 +1207,34 @@ namespace StrainMenuCreator
 
             return destImage;
         }
+
         public static Form1 f1;
+        public static bool Export_1080p;
 
         public static Bitmap ResizeImage(Image image, decimal percentage)
         {
+            int width = 1920;
+            int height = 1080;
             f1 = new Form1();
-            int width = Decimal.ToInt32(f1.Final_Width); //(int)Math.Round(image.Width * percentage, MidpointRounding.AwayFromZero);
-            int height = Decimal.ToInt32(f1.Final_Height); //(int)Math.Round(image.Height * percentage, MidpointRounding.AwayFromZero);
+            DialogResult dialogResult = MessageBox.Show("Do you want to export with your custom size(typically 4k)? Only say no if you plan on making a GIF or video.", "Export options", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.Yes)
+            {
+                Export_1080p = false;
+            }
+            else if (dialogResult == DialogResult.No)
+            {
+                Export_1080p = true;
+            }
+
+            if (!Export_1080p)
+            {
+                width = Decimal.ToInt32(f1
+                    .Final_Width); //(int)Math.Round(image.Width * percentage, MidpointRounding.AwayFromZero);
+                height =
+                    Decimal.ToInt32(f1
+                        .Final_Height); //(int)Math.Round(image.Height * percentage, MidpointRounding.AwayFromZero);
+            }
+
             return ResizeImage(image, width, height);
         }
     }

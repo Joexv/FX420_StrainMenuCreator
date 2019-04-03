@@ -12,3 +12,24 @@ C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\Stra
 C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenuCreator.pdb
 C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenu Creator.csprojAssemblyReference.cache
 C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenuCreator.Form1.resources
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\bin\Release\StrainMenuCreator.exe.config
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\bin\Release\StrainMenuCreator.exe
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\bin\Release\StrainMenuCreator.pdb
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\bin\Release\INIFileParser.dll
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\bin\Release\INIFileParser.xml
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenu Creator.csprojAssemblyReference.cache
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.ResolveComReference.cache
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenuCreator.Form1.resources
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenuCreator.Properties.Resources.resources
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.GenerateResource.cache
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.CoreCompileInputs.cache
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.CopyComplete
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenuCreator.exe
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenuCreator.pdb
+\\server\file_server\Menus\MenuCreator\StrainMenuCreator.exe.config
+\\server\file_server\Menus\MenuCreator\StrainMenuCreator.exe
+\\server\file_server\Menus\MenuCreator\StrainMenuCreator.pdb
+C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMenuCreator.Ounces.OunceForm.resources
+Z:\Menus\MenuCreator\StrainMenuCreator.exe.config
+Z:\Menus\MenuCreator\StrainMenuCreator.exe
+Z:\Menus\MenuCreator\StrainMenuCreator.pdb
