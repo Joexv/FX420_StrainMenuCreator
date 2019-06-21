@@ -1,21 +1,28 @@
 ﻿using IniParser;
 using Microsoft.Office.Interop.Excel;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using AppForm = System.Windows.Forms.Application;
-using DataTable = System.Data.DataTable;
-
 using Excel = Microsoft.Office.Interop.Excel;
+using DataTable = System.Data.DataTable;
+using System.Data;
+using Renci.SshNet;
 
 namespace StrainMenuCreator
 {
@@ -34,9 +41,23 @@ namespace StrainMenuCreator
         public string Bar2_Color;
         public string Background_Color;
 
-        public Form1()
+        private static string oauth => File.ReadAllText(@"Z:\Slack Bot\SlackBot_Auth.txt");
+        SlackClient Bot = new SlackClient(oauth);
+
+        public bool shouldCreate = false;
+        public bool ounceEdit = false;
+        //public string botPath = "";
+
+        public Form1(string[] Args)
         {
             InitializeComponent();
+            if (Args.Length > 0)
+            {
+                if (Args[0].ToLower() == "upload")
+                    shouldCreate = true;
+                else if (Args[0].ToLower() == "ounce")
+                    ounceEdit = true;
+            }
         }
 
         private static void Extract(string nameSpace, string outDirectory, string internalFilePath, string resourceName)
@@ -58,32 +79,22 @@ namespace StrainMenuCreator
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            /*
             if (!File.Exists("INIFileParser.dll"))
-            {
                 ExtractFile("INIFileParser.dll");
-            }
 
             if (!File.Exists("INIFileParser.xml"))
-            {
                 ExtractFile("INIFileParser.xml");
-            }
 
             if (!File.Exists("Premade.ini"))
-            {
                 ExtractFile("Premade.ini");
-            }
 
             if (!File.Exists("Template_36.xlsx"))
-            {
                 ExtractFile("Template_36.xlsx");
-            }
 
             if (!File.Exists("Template_40.xlsx"))
-            {
                 ExtractFile("Template_40.xlsx");
-            }
 
-            /*
              * Originally this was used to just use todays or yesterdays list, but I changed it so that they will backup the lists on said days,
              * but it overwrites one universal one and will automatically use that.
              * That way theres less chance of using a very old menu.
@@ -114,9 +125,7 @@ namespace StrainMenuCreator
             dataGridView1.DataSource = DataTable("Premade.ini");
 
             if (File.Exists(TemplateFile))
-            {
                 Template_Label.Text = "Template File Loaded!";
-            }
 
             this.FormClosed += form_FormClosed;
         }
@@ -208,9 +217,6 @@ namespace StrainMenuCreator
             Hybrid_Box.Text = "375623";
             Heavy_Box.Text = "ed7d31";
 
-            Logo_Box.Enabled = true;
-            Logo_Box.Checked = true;
-
             Range1.Text = "A1";
             Range2.Text = "L30";
 
@@ -223,25 +229,137 @@ namespace StrainMenuCreator
 
         private void button4_Click(object sender, EventArgs e)
         {
-            Cursor.Current = Cursors.WaitCursor;
-            button4.Text = "Processing...";
-            CreateExcel();
-            //EditExcel();
-            EditExcel_Table();
-            //CreateImage();
-            CreateImage();
-            ResizeImage("menu_Small.png");
-            button4.Text = "Create Menu";
-            var Premade = "Premade" + DateTime.Today.ToString("MM-dd-yyyy") + ".ini";
-            GenPremade(Premade);
-            if (File.Exists("Premade.ini"))
+            doProcess(); 
+        }
+
+        private void doProcess()
+        {
+            try
             {
-                File.Delete("Premade.ini");
+                Cursor.Current = Cursors.WaitCursor;
+                button4.Text = "Processing...";
+                CreateExcel();
+                EditExcel_Table();
+                CreateImage();
+                ResizeImage("menu_Small.png");
+                button4.Text = "Create Menu";
+                var Premade = "Premade" + DateTime.Today.ToString("MM-dd-yyyy") + ".ini";
+                GenPremade(Premade);
+                if (File.Exists("Premade.ini"))
+                    File.Delete("Premade.ini");
+
+                File.Copy(Premade, "Premade.ini");
+                //MessageBox.Show("Menu has been created and should be located on your desktop!", "Done!");
+                if (!checkBox1.Checked)
+                    UploadScreenly();
+                Cursor.Current = Cursors.Default;
+                if (shouldCreate)
+                    Bot.PostMessage("Flower menu was created and uploaded!", channel: "#menu_updates", username: "menubot");
+                else
+                    MessageBox.Show("Done :)");
+            }
+            catch (Exception ex)
+            {
+                if (!shouldCreate)
+                    MessageBox.Show(ex.ToString() + "\n\n\nPlease try again. Please close all other programs or restart the computer before trying again.");
+                else
+                    Bot.PostMessage("Flower menu creation failed! Please try again, or try manually.", channel: "#menu_updates", username: "menubot");
+                button4.Text = "Create Menu";
             }
 
-            File.Copy(Premade, "Premade.ini");
-            MessageBox.Show("Menu has been created and should be located on your desktop!", "Done!");
-            Cursor.Current = Cursors.Default;
+            if (shouldCreate)
+                this.Close();
+        }
+
+        public string webURL = "http://192.168.1.210/manage/shares/Server/Menus/MenuCreator/Uploads/";
+        public void UploadScreenly()
+        {
+            try
+            {
+                webURL = @"/home/pi/screenly_assets/AUTOMATED_" + DateTime.Now.ToString("MM-dd-yyyy_hhmm");
+                string Output =
+                    Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) +
+                    "\\Menu_" + DateTime.Today.ToString("MM-dd-yyyy") + "_.png";
+
+                Console.WriteLine(Output);
+                Console.WriteLine(webURL);
+                Console.WriteLine("Deleting all old assets");
+                DeleteOldAssetsAsync("192.168.1.112");
+                Console.WriteLine("Uploading to Screenly Menus");
+
+                SFTPUpload(Output, webURL, "192.168.1.112");
+                Upload(webURL, "192.168.1.112");
+            }
+            catch (Exception ex)
+            {
+                if(!shouldCreate)
+                 MessageBox.Show(ex.ToString());
+            }
+        }
+
+        private Asset AssetToUpdate { get; set; }
+        private async void Upload(string fileLocation, string IP)
+        {
+            Device newDevice = new Device
+            {
+                Name = "Flower",
+                Location = "Floor",
+                IpAddress = IP,
+                Port = "80",
+                ApiVersion = "v1.1/"
+            };
+
+            Asset a = new Asset();
+            a.AssetId = "AUTOMATED_" + DateTime.Now.ToString("MM-dd-yyyy_hhmm");
+            a.Name = "Menu_AUTO_" + DateTime.Now.ToString("MM-dd-yyyy hh-mm tt");
+            a.Uri = fileLocation;
+            a.StartDate = DateTime.Today.AddDays(-1).ToUniversalTime();
+            a.EndDate = DateTime.Today.AddDays(20).ToUniversalTime();
+            a.Duration = "10";
+            a.IsEnabled = 1;
+            a.NoCache = 0;
+            a.Mimetype = "image";
+            a.SkipAssetCheck = 1;
+            a.IsProcessing = 0;
+            await newDevice.CreateAsset(a);
+        }
+
+        public void SFTPUpload(string fileToUpload, string fileLocation, string host = "192.168.1.112", string user = "pi", string password = "raspberry", int Port = 22)
+        {
+            try
+            {
+                var client = new SftpClient(host, Port, user, password);
+                client.Connect();
+                if (client.IsConnected)
+                    using (var fileStream = new FileStream(fileToUpload, FileMode.Open))
+                    {
+                        client.UploadFile(fileStream, fileLocation);
+                        client.Disconnect();
+                        client.Dispose();
+                    }
+                else
+                    Console.WriteLine("Couldn't connect to host");
+            }
+            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+        }
+
+        public async void DeleteOldAssetsAsync(string IP)
+        {
+            Device newDevice = new Device
+            {
+                Name = "Specials",
+                Location = "Floor",
+                IpAddress = IP,
+                Port = "80",
+                ApiVersion = "v1.1/"
+            };
+
+            await newDevice.GetAssetsAsync();
+            foreach (Asset asset in newDevice.ActiveAssets)
+            {
+                Console.WriteLine(asset.AssetId);
+                await newDevice.RemoveAssetAsync(asset.AssetId);
+            }
         }
 
         public void EditExcel_Table()
@@ -249,6 +367,7 @@ namespace StrainMenuCreator
             try
             {
                 Console.WriteLine("Starting Excel edit...");
+                int menuOffset = (Int32)menuStart.Value;
                 Excel.Application excel = new Excel.Application();
                 Excel.Workbook wkb = excel.Workbooks.Open(Path.Combine(StartupPath, "Generated.xlsx"));
                 //Excel.Workbook wkb = excel.Workbooks.Open("Generated.xlsx");
@@ -258,8 +377,8 @@ namespace StrainMenuCreator
                 //H-K4 - H-K21 Second Row
 
                 //.Range["A1:L33"]
-                int Letter = 2;
-                int Num = 4;
+                int Letter = 3;
+                int Num = menuOffset;
                 Range row = sheet.Rows.Cells[2, 1];
 
                 #region Create lists from DataGridView
@@ -322,19 +441,19 @@ namespace StrainMenuCreator
 
                 Console.WriteLine(GetNum(Range2.Text) + Range2.Text.Substring(1));
                 Range rng = sheet.UsedRange;
-                rng.Interior.Color = System.Drawing.ColorTranslator.ToOle(GetColor(Background_Box.Text));
+                //rng.Interior.Color = System.Drawing.ColorTranslator.ToOle(GetColor(Background_Box.Text));
                 int i = 0;
                 bool ContinueAnyways = false;
                 foreach (var name in Names)
                 {
                     if (name != "" && name != "/n" && name != "/r")
                     {
-                        if (Num >= ((TemplateMax / 2) + 4) && Letter != 8)
+                        if (Num >= ((TemplateMax / 2) + menuOffset) && Letter != 9)
                         {
-                            Letter = 8;
-                            Num = 4;
+                            Letter = 9;
+                            Num = menuOffset;
                         }
-                        if (Num >= (TemplateMax + 4) || ContinueAnyways)
+                        if (Num >= (TemplateMax + menuOffset) || ContinueAnyways)
                         {
                             DialogResult dialogResult = MessageBox.Show("You have more flowers than what this template supports continue?", "???", MessageBoxButtons.YesNo);
                             if (dialogResult == DialogResult.No)
@@ -352,8 +471,8 @@ namespace StrainMenuCreator
 
                         //Flower Name
                         row = sheet.Rows.Cells[Num, Letter];
-                        row.Value = (i + 1) + ": " + name;
-                        //row.Value = name;
+                        //row.Value = (i + 1) + ": " + name;
+                        row.Value = name;
                         row.VerticalAlignment = XlVAlign.xlVAlignCenter;
                         row.HorizontalAlignment = XlHAlign.xlHAlignLeft;
                         row.Font.Size = FontSize.Value;
@@ -553,14 +672,9 @@ namespace StrainMenuCreator
                     process.WaitForExit();
                 }
                 if (File.Exists("Generated.xlsx"))
-                {
                     File.Delete("Generated.xlsx");
-                }
             }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.ToString());
-            }
+            catch (Exception e){ MessageBox.Show(e.ToString()); Console.WriteLine(e.ToString()); }
             File.Copy(TemplateFile, "Generated.xlsx");
         }
 
@@ -588,6 +702,7 @@ namespace StrainMenuCreator
         {
             Console.WriteLine("Resizing image...");
             FileInfo info = new FileInfo(fileName);
+            ImageHelper.sizeCheck = sizeCheck.Checked;
             using (Image image = Image.FromFile(fileName))
             {
                 using (Bitmap resizedImage = ImageHelper.ResizeImage(image, 2m))
@@ -701,6 +816,8 @@ namespace StrainMenuCreator
             data["Settings"]["Tax"] = Tax.Value.ToString();
             data["Settings"]["Font"] = FontSize.Value.ToString();
 
+            data["Settings"]["menuStart"] = menuStart.Value.ToString();
+
             parser.WriteFile(Premade, data);
         }
 
@@ -768,20 +885,17 @@ namespace StrainMenuCreator
             }
 
             Console.WriteLine("Loading Premade settings...");
-            try
-            {
-                Indica_Box.Text = data["Settings"]["Indica"];
-                Sativa_Box.Text = data["Settings"]["Sativa"];
-                Hybrid_Box.Text = data["Settings"]["Hybrid"];
-                Heavy_Box.Text = data["Settings"]["CBD"];
-                Range1.Text = data["Settings"]["Range1"];
-                Range2.Text = data["Settings"]["Range2"];
-                Image_Width.Value = decimal.Parse(data["Settings"]["Width"]);
-                Image_Height.Value = decimal.Parse(data["Settings"]["Height"]);
-                Tax.Value = decimal.Parse(data["Settings"]["Tax"]);
-                FontSize.Value = decimal.Parse(data["Settings"]["Font"]);
-            }
-            catch { }
+            Indica_Box.Text = data["Settings"]["Indica"];
+            Sativa_Box.Text = data["Settings"]["Sativa"];
+            Hybrid_Box.Text = data["Settings"]["Hybrid"];
+            Heavy_Box.Text = data["Settings"]["CBD"];
+            Range1.Text = data["Settings"]["Range1"];
+            Range2.Text = data["Settings"]["Range2"];
+            Image_Width.Value = decimal.Parse(data["Settings"]["Width"]);
+            Image_Height.Value = decimal.Parse(data["Settings"]["Height"]);
+            Tax.Value = decimal.Parse(data["Settings"]["Tax"]);
+            FontSize.Value = decimal.Parse(data["Settings"]["Font"]);
+            menuStart.Value = decimal.Parse(data["Settings"]["menuStart"]);
             return dt;
         }
 
@@ -809,6 +923,20 @@ namespace StrainMenuCreator
 
             Delete_Box.DataSource = Names.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
             this.BringToFront();
+            if (shouldCreate)
+                doProcess();
+            if (ounceEdit)
+            {
+                Ounces.OunceForm frm = new Ounces.OunceForm();
+                frm.ShouldCreate = true;
+                frm.FormClosed += EndProgram;
+                frm.Show();
+            }
+        }
+
+        private void EndProgram(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         //Delete row from DataGrid based on the comboBox above the button
@@ -997,7 +1125,12 @@ namespace StrainMenuCreator
         {
             CountCheck();
             List<string> Values = new List<string>();
-            DataTable dt = (DataTable)dataGridView1.DataSource;
+
+            DataTable sam = (DataTable)dataGridView1.DataSource;
+            DataView dt1 = new DataView(sam);
+            dt1.Sort = "Cost ASC";
+            DataTable dt = dt1.ToTable();
+
             foreach (DataRow DataRow in dt.Rows)
             {
                 Values.Add(DataRow[0].ToString());
@@ -1008,6 +1141,9 @@ namespace StrainMenuCreator
 
             Delete_Box.DataSource = Names.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
             this.BringToFront();
+            dataGridView1.DataSourceChanged -= dataGridView1_DataSourceChanged;
+            dataGridView1.DataSource = dt;
+            dataGridView1.DataSourceChanged += dataGridView1_DataSourceChanged;
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -1053,6 +1189,7 @@ namespace StrainMenuCreator
 
         private void button8_Click(object sender, EventArgs e)
         {
+            parts.Clear();
             try
             {
                 foreach (var process in Process.GetProcessesByName("EXCEL"))
@@ -1063,7 +1200,9 @@ namespace StrainMenuCreator
                 Console.WriteLine("Turning menu into nice and easy list");
                 DataTable sam = (DataTable)dataGridView1.DataSource;
                 DataView dt1 = new DataView(sam);
+                dt1.Sort = "Cost ASC";
                 DataTable dt = dt1.ToTable();
+
                 foreach (DataRow DataRow in dt.Rows)
                 {
                     parts.Add(DataRow[0].ToString() ?? "");
@@ -1170,6 +1309,11 @@ namespace StrainMenuCreator
             frm.TemplateFile = TemplateFile;
             frm.ShowDialog();
         }
+
+        private void Image_Width_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 
     public static class ImageHelper
@@ -1210,21 +1354,32 @@ namespace StrainMenuCreator
 
         public static Form1 f1;
         public static bool Export_1080p;
+        public static bool sizeCheck;
 
         public static Bitmap ResizeImage(Image image, decimal percentage)
         {
             int width = 1920;
             int height = 1080;
-            f1 = new Form1();
-            DialogResult dialogResult = MessageBox.Show("Do you want to export with your custom size(typically 4k)? Only say no if you plan on making a GIF or video.", "Export options", MessageBoxButtons.YesNo);
-            if (dialogResult == DialogResult.Yes)
+            string[] args = { };
+            f1 = new Form1(args);
+            if (!f1.shouldCreate)
             {
+                if (sizeCheck) { Export_1080p = false; }
+                else
+                {
+                    DialogResult dialogResult = MessageBox.Show("Do you want to export with your custom size(typically 4k)? Only say no if you plan on making a GIF or video.", "Export options", MessageBoxButtons.YesNo);
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        Export_1080p = false;
+                    }
+                    else if (dialogResult == DialogResult.No)
+                    {
+                        Export_1080p = true;
+                    }
+                }
+            }
+            else
                 Export_1080p = false;
-            }
-            else if (dialogResult == DialogResult.No)
-            {
-                Export_1080p = true;
-            }
 
             if (!Export_1080p)
             {
@@ -1237,5 +1392,388 @@ namespace StrainMenuCreator
 
             return ResizeImage(image, width, height);
         }
+    }
+
+
+    public class Asset
+    {
+        [Newtonsoft.Json.JsonProperty(PropertyName = "asset_id")]
+        public string AssetId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "mimetype")]
+        public string Mimetype { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "end_date")]
+        public DateTime EndDate { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "is_enabled")]
+        public Int32 IsEnabled { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "is_processing")]
+        public Int32? IsProcessing { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "skip_asset_check")]
+        public Int32 SkipAssetCheck { get; set; }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public bool IsEnabledSwitch
+        {
+            get
+            {
+                return IsEnabled.Equals(1) ? true : false;
+            }
+        }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "nocache")]
+        public Int32 NoCache { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "is_active")]
+        public Int32 IsActive { get; set; }
+
+        private string _Uri;
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "uri")]
+        public string Uri
+        {
+            get { return _Uri; }
+            set { _Uri = System.Net.WebUtility.UrlEncode(value); }
+        }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public string ReadableUri
+        {
+            get
+            {
+                return System.Net.WebUtility.UrlDecode(this.Uri);
+            }
+        }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "duration")]
+        public string Duration { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "play_order")]
+        public Int32 PlayOrder { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "start_date")]
+        public DateTime StartDate { get; set; }
+    }
+    public class Device
+    {
+        [Newtonsoft.Json.JsonIgnore]
+        private List<Asset> Assets;
+
+        [Newtonsoft.Json.JsonIgnore]
+        public bool IsUp { get; set; }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public ObservableCollection<Asset> ActiveAssets
+        {
+            get
+            {
+                return new ObservableCollection<Asset>(this.Assets.FindAll(x => x.IsActive.Equals(1)));
+            }
+        }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public ObservableCollection<Asset> InactiveAssets
+        {
+            get
+            {
+                return new ObservableCollection<Asset>(this.Assets.FindAll(x => x.IsActive.Equals(0)));
+            }
+        }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "ip_address")]
+        public string IpAddress { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "port")]
+        public string Port { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "location")]
+        public string Location { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "api_version")]
+        public string ApiVersion { get; set; }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public string HttpLink
+        {
+            get
+            {
+                return $"http://{IpAddress}:{Port}";
+            }
+        }
+
+        public Device()
+        {
+            this.Assets = new List<Asset>();
+            this.IsUp = false;
+        }
+
+        public async Task<bool> IsReachable()
+        {
+            try
+            {
+                HttpClient client = new HttpClient();
+                client.Timeout = new TimeSpan(0, 0, 1);
+
+                HttpResponseMessage response = await client.GetAsync(this.HttpLink);
+                if (response == null || !response.IsSuccessStatusCode)
+                {
+                    this.IsUp = false;
+                    return false;
+                }
+                else
+                {
+                    this.IsUp = true;
+                    return true;
+                }
+            }
+            catch
+            {
+                this.IsUp = false;
+                return false;
+            }
+        }
+
+
+        #region Screenly's API methods
+
+        /// <summary>
+        /// Get assets trought Screenly API
+        /// </summary>
+        /// <returns></returns>
+        public async Task GetAssetsAsync()
+        {
+            List<Asset> returnedAssets = new List<Asset>();
+            string resultJson = string.Empty;
+            string parameters = $"/api/{this.ApiVersion}assets";
+
+            try
+            {
+                HttpClient request = new HttpClient();
+                using (HttpResponseMessage response = await request.GetAsync(this.HttpLink + parameters))
+                {
+                    resultJson = await response.Content.ReadAsStringAsync();
+                }
+
+                if (!resultJson.Equals(string.Empty))
+                    this.Assets = JsonConvert.DeserializeObject<List<Asset>>(resultJson);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while getting assets.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Remove specific asset for selected device
+        /// </summary>
+        /// <param name="assetId">Asset ID</param>
+        /// <returns>Boolean for result of execution</returns>
+        public async Task<bool> RemoveAssetAsync(string assetId)
+        {
+            string resultJson = string.Empty;
+            string parameters = $"/api/{this.ApiVersion}assets/{assetId}";
+
+            try
+            {
+                HttpClient request = new HttpClient();
+                using (HttpResponseMessage response = await request.DeleteAsync(this.HttpLink + parameters))
+                {
+                    resultJson = await response.Content.ReadAsStringAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error when asset deleting.", ex);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Update specific asset
+        /// </summary>
+        /// <param name="a">Asset to update</param>
+        /// <returns>Asset updated</returns>
+        public async Task<Asset> UpdateAssetAsync(Asset a)
+        {
+            Asset returnedAsset = new Asset();
+            JsonSerializerSettings settings = new JsonSerializerSettings();
+            IsoDateTimeConverter dateConverter = new IsoDateTimeConverter
+            {
+                DateTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fff'Z'"
+            };
+            settings.Converters.Add(dateConverter);
+
+            string json = JsonConvert.SerializeObject(a, settings);
+            var postData = $"model={json}";
+            var data = System.Text.Encoding.UTF8.GetBytes(postData);
+
+            string resultJson = string.Empty;
+            string parameters = $"/api/{this.ApiVersion}assets/{a.AssetId}";
+
+            try
+            {
+                HttpClient client = new HttpClient();
+                HttpContent content = new ByteArrayContent(data, 0, data.Length);
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+                using (HttpResponseMessage response = await client.PutAsync(this.HttpLink + parameters, content))
+                {
+                    resultJson = await response.Content.ReadAsStringAsync();
+                }
+
+                if (!resultJson.Equals(string.Empty))
+                {
+                    returnedAsset = JsonConvert.DeserializeObject<Asset>(resultJson, settings);
+                }
+            }
+            catch (WebException ex)
+            {
+                using (var stream = ex.Response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    throw new Exception(reader.ReadToEnd(), ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while updating asset.", ex);
+            }
+
+            return returnedAsset;
+        }
+
+        /// <summary>
+        /// Update order of active assets throught API
+        /// </summary>
+        /// <param name="newOrder"></param>
+        /// <returns></returns>
+        public async Task UpdateOrderAssetsAsync(string newOrder)
+        {
+            var postData = $"ids={newOrder}";
+            var data = System.Text.Encoding.UTF8.GetBytes(postData);
+
+            string resultJson = string.Empty;
+            string parameters = $"/api/{this.ApiVersion}assets/order";
+
+            try
+            {
+                HttpClient client = new HttpClient();
+                HttpContent content = new ByteArrayContent(data, 0, data.Length);
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+                using (HttpResponseMessage response = await client.PostAsync(this.HttpLink + parameters, content))
+                {
+                    resultJson = await response.Content.ReadAsStringAsync();
+                }
+            }
+            catch (WebException ex)
+            {
+                using (var stream = ex.Response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    throw new Exception(reader.ReadToEnd(), ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while updating assets order.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Create new asset on Raspberry using API
+        /// </summary>
+        /// <param name="a">New asset to create on Raspberry</param>
+        /// <returns></returns>
+        public async Task CreateAsset(Asset a)
+        {
+            Asset returnedAsset = new Asset();
+            JsonSerializerSettings settings = new JsonSerializerSettings();
+            IsoDateTimeConverter dateConverter = new IsoDateTimeConverter
+            {
+                DateTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fff'Z'"
+            };
+            settings.Converters.Add(dateConverter);
+
+            string json = JsonConvert.SerializeObject(a, settings);
+            var postData = $"model={json}";
+            var data = System.Text.Encoding.UTF8.GetBytes(postData);
+
+            string resultJson = string.Empty;
+            string parameters = $"/api/{this.ApiVersion}assets";
+
+            try
+            {
+                HttpClient client = new HttpClient();
+                HttpContent content = new ByteArrayContent(data, 0, data.Length);
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+                using (HttpResponseMessage response = await client.PostAsync(this.HttpLink + parameters, content))
+                {
+                    resultJson = await response.Content.ReadAsStringAsync();
+                }
+
+                if (!resultJson.Equals(string.Empty))
+                    returnedAsset = JsonConvert.DeserializeObject<Asset>(resultJson, settings);
+            }
+            catch (WebException ex)
+            {
+                using (var stream = ex.Response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    throw new Exception(reader.ReadToEnd(), ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while creating asset.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Return asset identified by asset ID in param API
+        /// </summary>
+        /// <param name="assetId">Asset ID to find on device</param>
+        /// <returns></returns>
+        public async Task<Asset> GetAssetAsync(string assetId)
+        {
+            Asset returnedAsset = new Asset();
+            JsonSerializerSettings settings = new JsonSerializerSettings();
+            IsoDateTimeConverter dateConverter = new IsoDateTimeConverter
+            {
+                DateTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fff'Z'"
+            };
+            settings.Converters.Add(dateConverter);
+
+            string resultJson = string.Empty;
+            string parameters = $"/api/{this.ApiVersion}assets/{assetId}";
+
+            try
+            {
+                HttpClient request = new HttpClient();
+                using (HttpResponseMessage response = await request.GetAsync(this.HttpLink + parameters))
+                {
+                    resultJson = await response.Content.ReadAsStringAsync();
+                }
+
+                if (!resultJson.Equals(string.Empty))
+                    return JsonConvert.DeserializeObject<Asset>(resultJson);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while getting assets.", ex);
+            }
+            return null;
+        }
+
+        #endregion
     }
 }

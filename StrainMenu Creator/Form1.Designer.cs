@@ -50,7 +50,6 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.Logo_Box = new System.Windows.Forms.CheckBox();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
@@ -75,6 +74,10 @@
             this.button8 = new System.Windows.Forms.Button();
             this.button9 = new System.Windows.Forms.Button();
             this.button10 = new System.Windows.Forms.Button();
+            this.label15 = new System.Windows.Forms.Label();
+            this.menuStart = new System.Windows.Forms.NumericUpDown();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.sizeCheck = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -82,6 +85,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.Tax)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Image_Width)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Image_Height)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.menuStart)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -290,24 +294,10 @@
             this.label9.TabIndex = 15;
             this.label9.Text = "Defaults are fine for colors";
             // 
-            // Logo_Box
-            // 
-            this.Logo_Box.AutoSize = true;
-            this.Logo_Box.Checked = true;
-            this.Logo_Box.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.Logo_Box.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Logo_Box.Location = new System.Drawing.Point(808, 632);
-            this.Logo_Box.Name = "Logo_Box";
-            this.Logo_Box.Size = new System.Drawing.Size(174, 34);
-            this.Logo_Box.TabIndex = 16;
-            this.Logo_Box.Text = "FX420 Logo Image at top? \r\nDoes nothing atm";
-            this.Logo_Box.UseVisualStyleBackColor = true;
-            this.Logo_Box.Visible = false;
-            // 
             // button3
             // 
             this.button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button3.Location = new System.Drawing.Point(791, 473);
+            this.button3.Location = new System.Drawing.Point(797, 497);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(119, 23);
             this.button3.TabIndex = 17;
@@ -317,7 +307,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(791, 531);
+            this.button4.Location = new System.Drawing.Point(797, 577);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(200, 42);
             this.button4.TabIndex = 18;
@@ -327,7 +317,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(791, 502);
+            this.button2.Location = new System.Drawing.Point(797, 526);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(119, 23);
             this.button2.TabIndex = 19;
@@ -338,7 +328,7 @@
             // Delete_Box
             // 
             this.Delete_Box.FormattingEnabled = true;
-            this.Delete_Box.Location = new System.Drawing.Point(791, 579);
+            this.Delete_Box.Location = new System.Drawing.Point(797, 625);
             this.Delete_Box.Name = "Delete_Box";
             this.Delete_Box.Size = new System.Drawing.Size(200, 21);
             this.Delete_Box.TabIndex = 20;
@@ -346,7 +336,7 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(831, 606);
+            this.button5.Location = new System.Drawing.Point(837, 652);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(116, 23);
             this.button5.TabIndex = 21;
@@ -409,6 +399,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
+            this.label2.Enabled = false;
             this.label2.Location = new System.Drawing.Point(794, 325);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(36, 13);
@@ -417,6 +408,7 @@
             // 
             // Tax
             // 
+            this.Tax.Enabled = false;
             this.Tax.Location = new System.Drawing.Point(909, 323);
             this.Tax.Name = "Tax";
             this.Tax.Size = new System.Drawing.Size(73, 20);
@@ -469,6 +461,7 @@
             // 
             // Image_Width
             // 
+            this.Image_Width.Enabled = false;
             this.Image_Width.Location = new System.Drawing.Point(867, 432);
             this.Image_Width.Maximum = new decimal(new int[] {
             10000,
@@ -483,9 +476,11 @@
             0,
             0,
             0});
+            this.Image_Width.ValueChanged += new System.EventHandler(this.Image_Width_ValueChanged);
             // 
             // Image_Height
             // 
+            this.Image_Height.Enabled = false;
             this.Image_Height.Location = new System.Drawing.Point(924, 431);
             this.Image_Height.Maximum = new decimal(new int[] {
             10000,
@@ -504,6 +499,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
+            this.label4.Enabled = false;
             this.label4.Location = new System.Drawing.Point(797, 434);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(59, 13);
@@ -513,6 +509,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
+            this.label5.Enabled = false;
             this.label5.Location = new System.Drawing.Point(879, 455);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(18, 13);
@@ -522,6 +519,7 @@
             // label14
             // 
             this.label14.AutoSize = true;
+            this.label14.Enabled = false;
             this.label14.Location = new System.Drawing.Point(942, 454);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(15, 13);
@@ -530,7 +528,7 @@
             // 
             // button8
             // 
-            this.button8.Location = new System.Drawing.Point(916, 502);
+            this.button8.Location = new System.Drawing.Point(922, 526);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(75, 23);
             this.button8.TabIndex = 38;
@@ -558,11 +556,63 @@
             this.button10.UseVisualStyleBackColor = true;
             this.button10.Click += new System.EventHandler(this.button10_Click);
             // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(795, 473);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(73, 13);
+            this.label15.TabIndex = 42;
+            this.label15.Text = "Start Of Menu";
+            // 
+            // menuStart
+            // 
+            this.menuStart.Location = new System.Drawing.Point(882, 471);
+            this.menuStart.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.menuStart.Name = "menuStart";
+            this.menuStart.Size = new System.Drawing.Size(51, 20);
+            this.menuStart.TabIndex = 41;
+            this.menuStart.Value = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(797, 554);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(86, 17);
+            this.checkBox1.TabIndex = 43;
+            this.checkBox1.Text = "Dont Upload";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // sizeCheck
+            // 
+            this.sizeCheck.AutoSize = true;
+            this.sizeCheck.Checked = true;
+            this.sizeCheck.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.sizeCheck.Location = new System.Drawing.Point(911, 554);
+            this.sizeCheck.Name = "sizeCheck";
+            this.sizeCheck.Size = new System.Drawing.Size(39, 17);
+            this.sizeCheck.TabIndex = 44;
+            this.sizeCheck.Text = "4K";
+            this.sizeCheck.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1005, 762);
+            this.Controls.Add(this.sizeCheck);
+            this.Controls.Add(this.checkBox1);
+            this.Controls.Add(this.label15);
+            this.Controls.Add(this.menuStart);
             this.Controls.Add(this.button10);
             this.Controls.Add(this.button9);
             this.Controls.Add(this.button8);
@@ -587,7 +637,6 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
-            this.Controls.Add(this.Logo_Box);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -609,6 +658,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.Tax)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Image_Width)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Image_Height)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.menuStart)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -636,7 +686,6 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.CheckBox Logo_Box;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button2;
@@ -661,6 +710,10 @@
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.Button button9;
         private System.Windows.Forms.Button button10;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.NumericUpDown menuStart;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox sizeCheck;
     }
 }
 

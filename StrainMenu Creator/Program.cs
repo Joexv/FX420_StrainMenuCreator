@@ -9,11 +9,11 @@ namespace StrainMenuCreator
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main()
+        private static void Main(string[] Args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new Form1(Args));
         }
     }
 }

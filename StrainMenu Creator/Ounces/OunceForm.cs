@@ -24,6 +24,9 @@ namespace StrainMenuCreator.Ounces
             InitializeComponent();
         }
 
+        private static string oauth => File.ReadAllText(@"Z:\Slack Bot\SlackBot_Auth.txt");
+        SlackClient Bot = new SlackClient(oauth);
+
         private List<String> Names = new List<String> { };
         private List<String> OuncePrice = new List<String> { };
         private List<String> HalfOunce = new List<String> { };
@@ -39,13 +42,18 @@ namespace StrainMenuCreator.Ounces
             List<string> Values = new List<string>();
             DataTable dt = (DataTable)dataGridView1.DataSource;
             foreach (DataRow DataRow in dt.Rows)
-            {
                 Values.Add(DataRow[0].ToString());
-            }
 
             string[] Names = Values.ToArray();
             Values.Clear();
             Delete_Box.DataSource = Names.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
+
+            var parser = new FileIniDataParser();
+            var data = parser.ReadFile(AppForm.StartupPath + @"\Settings.ini");
+            menuStart.Value = decimal.Parse(data["Settings"]["menuStart"]);
+
+            data = parser.ReadFile(AppForm.StartupPath + @"\Ounces.ini");
+            numericUpDown1.Value = Int32.Parse(data["Settings"]["Total"]);
         }
 
         private DataTable Data()
@@ -122,7 +130,13 @@ namespace StrainMenuCreator.Ounces
             EditTemplate(AppForm.StartupPath + @"\Template_44.xlsx");
             button1.Text = "Save";
             Cursor.Current = Cursors.Default;
-            MessageBox.Show("Done! Just create your menu like normal from the previous menu, in order to see your changes.");
+            if (!ShouldCreate)
+                MessageBox.Show("Done! Just create your menu like normal from the previous menu, in order to see your changes.");
+            else
+            {
+                Bot.PostMessage("Ounces have been edited and written to the excel files. Please create a flower menu as you normally would to see the desired changes.", username: "botmenu", channel: "#menu_updates");
+                this.Close();
+            }
         }
 
         public void GenPremade(string Premade)
@@ -187,6 +201,7 @@ namespace StrainMenuCreator.Ounces
         {
             try
             {
+                int menuOffset = (Int32)menuStart.Value;
                 Console.WriteLine("Starting Excel edit...");
                 Excel.Application excel = new Excel.Application();
                 Excel.Workbook wkb = excel.Workbooks.Open(templateFile);
@@ -195,9 +210,9 @@ namespace StrainMenuCreator.Ounces
                 Range row = sheet.Rows.Cells[2, 1];
 
                 Console.WriteLine("Clearing old ounces");
-                for (int c = GetNum("M") - 1; c < GetNum("M") + 3; c++)
+                for (int c = GetNum("N") - 1; c < GetNum("N") + 3; c++)
                 {
-                    for (int r = 4; r < 21; r++)
+                    for (int r = menuOffset; r < numericUpDown1.Value + menuOffset; r++)
                     {
                         Console.WriteLine("c{0} : r{1}", c, r);
                         row = sheet.Rows.Cells[r, c];
@@ -206,8 +221,45 @@ namespace StrainMenuCreator.Ounces
                 }
 
                 //.Range["A1:L33"]
-                int Letter = GetNum("M") - 1;
-                int Num = 4;
+                int Letter = GetNum("N") - 1;
+                int Num = menuOffset;
+
+                if (checkBox1.Checked)
+                {
+                    row = sheet.Rows.Cells[4, Letter];
+                    row.Value = "Name";
+                    row.VerticalAlignment = XlVAlign.xlVAlignCenter;
+                    row.HorizontalAlignment = XlHAlign.xlHAlignLeft;
+                    row.Font.Size = 30;
+                    row.Font.Bold = true;
+                    row.Font.Italic = true;
+                    row.Font.Color = Color.White;
+
+                    row = sheet.Rows.Cells[4, Letter + 1];
+                    row.Value = "1oz";
+                    row.VerticalAlignment = XlVAlign.xlVAlignCenter;
+                    row.HorizontalAlignment = XlHAlign.xlHAlignLeft;
+                    row.Font.Size = 30;
+                    row.Font.Bold = true;
+                    row.Font.Italic = true;
+                    row.Font.Color = Color.White;
+
+                    row = sheet.Rows.Cells[4, Letter + 2];
+                    row.Value = "1/2oz";
+                    row.VerticalAlignment = XlVAlign.xlVAlignCenter;
+                    row.HorizontalAlignment = XlHAlign.xlHAlignLeft;
+                    row.Font.Size = 30;
+                    row.Font.Bold = true;
+                    row.Font.Italic = true;
+                    row.Font.Color = Color.White;
+
+                    row = sheet.Rows.Cells[3, Letter];
+                    row.Value = "";
+                    row = sheet.Rows.Cells[3, Letter + 1];
+                    row.Value = "";
+                    row = sheet.Rows.Cells[3, Letter + 2];
+                    row.Value = "";
+                }
 
                 #region Create lists from DataGridView
 
@@ -250,7 +302,7 @@ namespace StrainMenuCreator.Ounces
                         row.Value = name;
                         row.VerticalAlignment = XlVAlign.xlVAlignCenter;
                         row.HorizontalAlignment = XlHAlign.xlHAlignLeft;
-                        row.Font.Size = 24;
+                        row.Font.Size = 28;
                         row.Font.Bold = true;
                         row.Font.Color = Color.Black;
 
@@ -286,7 +338,7 @@ namespace StrainMenuCreator.Ounces
                         }
                         row.VerticalAlignment = XlVAlign.xlVAlignCenter;
                         row.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-                        row.Font.Size = 24;
+                        row.Font.Size = 28;
                         row.Font.Bold = true;
                         row.Font.Color = Color.Black;
 
@@ -322,13 +374,14 @@ namespace StrainMenuCreator.Ounces
                         }
                         row.VerticalAlignment = XlVAlign.xlVAlignCenter;
                         row.HorizontalAlignment = XlHAlign.xlHAlignCenter;
-                        row.Font.Size = 24;
+                        row.Font.Size = 28;
                         row.Font.Bold = true;
                         row.Font.Color = Color.Black;
                     }
                     i++;
                     Num++;
                 }
+
                 Console.WriteLine("Done editing saving...");
                 excel.Application.ActiveWorkbook.Save();
                 object objFalse = false;
@@ -411,6 +464,31 @@ namespace StrainMenuCreator.Ounces
             {
                 MessageBox.Show("Error removing the selected strain!" + System.Environment.NewLine + ex.ToString());
             }
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void menuStart_ValueChanged(object sender, EventArgs e)
+        {
+            var parser = new FileIniDataParser();
+            var data = parser.ReadFile(AppForm.StartupPath + @"\Settings.ini");
+            data["Settings"]["menuStart"] = menuStart.Value.ToString();
+        }
+
+
+        public bool ShouldCreate = false;
+        private void OunceForm_Shown(object sender, EventArgs e)
+        {
+            if (ShouldCreate)
+                button1_Click(sender, e);
         }
     }
 }
