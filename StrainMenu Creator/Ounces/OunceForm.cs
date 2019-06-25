@@ -24,7 +24,7 @@ namespace StrainMenuCreator.Ounces
             InitializeComponent();
         }
 
-        private static string oauth => File.ReadAllText(@"Z:\Slack Bot\SlackBot_Auth.txt");
+        private static string oauth => File.Exists(@"Z:\Slack Bot\SlackBot_Auth.txt") ? File.ReadAllText(@"Z:\Slack Bot\SlackBot_Auth.txt") : "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX";
         SlackClient Bot = new SlackClient(oauth);
 
         private List<String> Names = new List<String> { };
@@ -33,8 +33,27 @@ namespace StrainMenuCreator.Ounces
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            if (!File.Exists("Ounces.ini"))
+                RepairOunces();
             dataGridView1.DataSource = Data();
             RefreshGrid();
+        }
+
+        private void RepairOunces() {
+            using (StreamWriter sw = File.CreateText("Ounces.ini"))
+            {
+                sw.WriteLine("[Settings]");
+                sw.WriteLine("Total = 1");
+                sw.WriteLine("");
+                sw.WriteLine("[Name]");
+                sw.WriteLine("1 = NA");
+                sw.WriteLine("");
+                sw.WriteLine("[O_Price]");
+                sw.WriteLine("1 = NA");
+                sw.WriteLine("");
+                sw.WriteLine("[H_Price]");
+                sw.WriteLine("1 = NA");
+            }
         }
 
         private void RefreshGrid()

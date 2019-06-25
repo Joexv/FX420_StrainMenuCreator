@@ -33,3 +33,14 @@ C:\Users\Joe\Desktop\StrainMenu Creator\StrainMenu Creator\obj\Release\StrainMen
 Z:\Menus\MenuCreator\StrainMenuCreator.exe.config
 Z:\Menus\MenuCreator\StrainMenuCreator.exe
 Z:\Menus\MenuCreator\StrainMenuCreator.pdb
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Release\StrainMenu Creator.csprojAssemblyReference.cache
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.ResolveComReference.cache
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Release\StrainMenuCreator.Form1.resources
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Release\StrainMenuCreator.Ounces.OunceForm.resources
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Release\StrainMenuCreator.Properties.Resources.resources
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.GenerateResource.cache
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.CoreCompileInputs.cache
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.Fody.CopyLocal.cache
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Release\StrainMenu Creator.csproj.CopyComplete
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Release\StrainMenuCreator.exe
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Release\StrainMenuCreator.pdb
