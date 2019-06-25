@@ -41,7 +41,7 @@ namespace StrainMenuCreator
         public string Bar2_Color;
         public string Background_Color;
 
-        private static string oauth => File.ReadAllText(@"Z:\Slack Bot\SlackBot_Auth.txt");
+        private static string oauth => File.Exists(@"Z:\Slack Bot\SlackBot_Auth.txt") ? File.ReadAllText(@"Z:\Slack Bot\SlackBot_Auth.txt") : "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX";
         SlackClient Bot = new SlackClient(oauth);
 
         public bool shouldCreate = false;
@@ -889,13 +889,13 @@ namespace StrainMenuCreator
             Sativa_Box.Text = data["Settings"]["Sativa"];
             Hybrid_Box.Text = data["Settings"]["Hybrid"];
             Heavy_Box.Text = data["Settings"]["CBD"];
-            Range1.Text = data["Settings"]["Range1"];
-            Range2.Text = data["Settings"]["Range2"];
-            Image_Width.Value = decimal.Parse(data["Settings"]["Width"]);
-            Image_Height.Value = decimal.Parse(data["Settings"]["Height"]);
-            Tax.Value = decimal.Parse(data["Settings"]["Tax"]);
-            FontSize.Value = decimal.Parse(data["Settings"]["Font"]);
-            menuStart.Value = decimal.Parse(data["Settings"]["menuStart"]);
+            Range1.Text = data["Settings"]["Range1"] ?? "";
+            Range2.Text = data["Settings"]["Range2"] ?? "";
+            Image_Width.Value = decimal.Parse(data["Settings"]["Width"] ?? "0");
+            Image_Height.Value = decimal.Parse(data["Settings"]["Height"] ?? "0");
+            Tax.Value = decimal.Parse(data["Settings"]["Tax"] ?? "0");
+            FontSize.Value = decimal.Parse(data["Settings"]["Font"] ?? "0");
+            menuStart.Value = decimal.Parse(data["Settings"]["menuStart"] ?? "0");
             return dt;
         }
 

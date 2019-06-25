@@ -12,3 +12,20 @@ C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\Strain
 C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\StrainMenuCreator.exe
 C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\StrainMenuCreator.pdb
 C:\Users\Joe\source\repos\StrainMenu Creator\StrainMenu Creator\obj\Debug\StrainMenuCreator.Form1.resources
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\bin\Debug\StrainMenuCreator.exe.config
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\bin\Debug\StrainMenuCreator.exe
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\bin\Debug\StrainMenuCreator.pdb
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\bin\Debug\INIFileParser.xml
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\bin\Debug\Newtonsoft.Json.xml
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\bin\Debug\Renci.SshNet.xml
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Debug\StrainMenu Creator.csprojAssemblyReference.cache
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Debug\StrainMenu Creator.csproj.ResolveComReference.cache
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Debug\StrainMenuCreator.Form1.resources
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Debug\StrainMenuCreator.Ounces.OunceForm.resources
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Debug\StrainMenuCreator.Properties.Resources.resources
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Debug\StrainMenu Creator.csproj.GenerateResource.cache
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Debug\StrainMenu Creator.csproj.CoreCompileInputs.cache
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Debug\StrainMenu Creator.csproj.CopyComplete
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Debug\StrainMenuCreator.exe
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Debug\StrainMenuCreator.pdb
+C:\Users\2meirl4meirl\Documents\GitHub\FX420_StrainMenuCreator\StrainMenu Creator\obj\Debug\StrainMenu Creator.csproj.Fody.CopyLocal.cache
