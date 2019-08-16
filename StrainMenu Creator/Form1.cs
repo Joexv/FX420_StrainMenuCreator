@@ -279,7 +279,7 @@ namespace StrainMenuCreator
                 webURL = @"/home/pi/screenly_assets/AUTOMATED_" + DateTime.Now.ToString("MM-dd-yyyy_hhmm");
                 string Output =
                     Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) +
-                    "\\Menu_" + DateTime.Today.ToString("MM-dd-yyyy") + "_.png";
+                    "\\MenuImages\\Menu_" + DateTime.Today.ToString("MM-dd-yyyy") + "_.png";
 
                 Console.WriteLine(Output);
                 Console.WriteLine(webURL);
@@ -708,7 +708,7 @@ namespace StrainMenuCreator
                 using (Bitmap resizedImage = ImageHelper.ResizeImage(image, 2m))
                 {
                     resizedImage.Save(Environment.GetFolderPath
-                   (Environment.SpecialFolder.DesktopDirectory) + "\\" + "Menu_" + DateTime.Today.ToString("MM-dd-yyyy") + "_.png", ImageFormat.Png);
+                   (Environment.SpecialFolder.DesktopDirectory) + "\\MenuImages\\" + "Menu_" + DateTime.Today.ToString("MM-dd-yyyy") + "_.png", ImageFormat.Png);
                 }
             }
             Console.WriteLine("Done");
